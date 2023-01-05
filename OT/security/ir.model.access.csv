@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ot_registration_employee,access.ot.registration.employee,OT.model_ot_registration,OT.group_ot_employee,1,1,1,1
+access_ot_registration_employee_lines,access.ot.registration.employee.lines,OT.model_ot_registration_lines,OT.group_ot_employee,1,1,1,1
+access_ot_registration_pm,access.ot.registration.pm,OT.model_ot_registration,OT.group_ot_pm,1,1,1,1
+access_ot_registration_pm_lines,access.ot.registration.pm.lines,OT.model_ot_registration_lines,OT.group_ot_pm,1,1,1,1
+access_ot_registration_dl,access.ot.registration.dl,OT.model_ot_registration,OT.group_ot_dl,1,1,1,1
+access_ot_registration_dl_lines,access.ot.registration.dl.lines,OT.model_ot_registration_lines,OT.group_ot_dl,1,1,1,1
+

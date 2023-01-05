@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="ot_registration_view_tree" model="ir.ui.view">
+            <field name="name">ot.registration.view.tree</field>
+            <field name="model">ot.registration</field>
+            <field name="arch" type="xml">
+                <tree string="OT Registration">
+                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="employee_id"/>
+                    <field name="manager_id" string="Manager Approve" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="additional_hours" string="OT hours"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="ot_registration_view_form" model="ir.ui.view">
+            <field name="name">ot.registration.view.form</field>
+            <field name="model">ot.registration</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_submit" type="object" string="Submit" states="draft" confirm="Do you want to submit?" class="oe_highlight" icon="fa-reply text-warning"/>
+                        <button name="action_button_pm_dl_approve" type="object" string="PM Approve" states="to_approve" groups="OT.group_ot_pm" confirm="Do you want to approve?" class="oe_highlight" icon="fa-reply text-warning"/>
+                        <button name="action_button_pm_dl_approve" type="object" string="DL Approve" states="approved" groups="OT.group_ot_dl" confirm="Do you want to confirm?" class="oe_highlight" icon="fa-reply text-warning" />
+                        <button name="action_draft" string="Draft" type="object" states="refused" groups="OT.group_ot_employee" confirm="Do you want to draft?" class="oe_highlight" icon="fa-reply text-warning"/>
+                        <button name="action_refused" string="Refused" type="object" states="to_approve" groups="OT.group_ot_pm" confirm="Do you want to refused?" class="oe_highlight" icon="fa-reply text-warning"/>
+                        <button name="action_refused" string="Refused" type="object" states="approved" groups="OT.group_ot_dl" confirm="Do you want to refused?" class="oe_highlight" icon="fa-reply text-warning"/>
+                        <field name="state"  widget="statusbar" statusbar_visible="draft,to_approve,approved,done,refused"/>
+                    </header>
+                    <group>
+                        <group>
+                            <field name="project_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="manager_id" options="{'no_create': True, 'no_open': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="ot_month" options="{'datepicker': {'showType': 'months'}}" widget="date"/>
+                        </group>
+                        <group>
+                            <field name="employee_id"/>
+                            <field name="dl_manager_id"/>
+                            <field name="create_date" string="Create Date"/>
+                            <field name="additional_hours"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="ot_request_line" string="OT Request Line">
+                            <field name="ot_lines_ids" attrs="{'readonly':[('state','!=','draft')]}">
+                                <tree editable="bottom">
+                                    <field name="date_from" style="color:red;"/>
+                                    <field name="date_to" style="color:red;"/>
+                                    <field name="category" style="color:red;"/>
+                                    <field name="is_wfh"/>
+                                    <field name="additional_hours" style="color:red;"/>
+                                    <field name="job_taken" style="color:red;"/>
+                                    <field name="state" style="color:red;"/>
+                                    <field name="late_approve"/>
+                                    <field name="notes" string="HR Notes"/>
+                                    <field name="attendance_notes"/>
+                                    <field name="plan_hours" placeholder="Exceed OT plan" style="color:red;"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="HR Notes">
+	                </group>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+
+                </form>
+            </field>
+        </record>
+
+        <record id="action_ot_registration" model="ir.actions.act_window">
+            <field name="name">OT Registration</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ot.registration</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_ot_registration_request"
+                  name="OT Request"
+                  action="action_ot_registration"
+                  sequence="1"
+                  parent="menu_ot_registration"/>
+    </data>
+</odoo>

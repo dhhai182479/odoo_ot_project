@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="ot_registration_lines_view" model="ir.ui.view">
+            <field name="name">ot.registration.lines.view</field>
+            <field name="model">ot.registration.lines</field>
+            <field name="arch" type="xml">
+                <tree string="OT Registration Lines">
+                    <field name="employee_id"/>
+                    <field name="is_intern_contract" readonly="1"/>
+                    <field name="project_id"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="category"/>
+                    <field name="additional_hours"/>
+                    <field name="job_taken"/>
+                    <field name="late_approve"/>
+                    <field name="state"/>
+                    <field name="notes" string="HR Notes"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_ot_registration_lines" model="ir.actions.act_window">
+            <field name="name">OT Registration Lines</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ot.registration.lines</field>
+        </record>
+
+        <menuitem id="menu_ot_management"
+                  name="OT Management"
+                  sequence="0"/>
+
+        <menuitem id="menu_ot_registration"
+                  name="My OT Registration"
+                  sequence="0"
+                  parent="menu_ot_management"/>
+
+        <menuitem id="menu_ot_registration_lines"
+                  name="OT Registration Details"
+                  sequence="0"
+                  parent="menu_ot_registration"
+                  action="action_ot_registration_lines"/>
+
+
+    </data>
+</odoo>

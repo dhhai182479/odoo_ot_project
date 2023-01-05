@@ -1,0 +1,25 @@
+{
+    'name': 'OT Manager',
+    'summary': 'OT module',
+    'description': 'OT',
+    'author': 'Hai VTI.VMS',
+    'company': 'VTI VMS',
+    'maintainer': 'VTI/VMS',
+    'version': '1.0',
+    'depends': [
+        'base',
+        'hr',
+        'project',
+        'mail',
+    ],
+    'data': [
+        'security/ot_security.xml',
+        'security/ir.model.access.csv',
+        'views/OT_registration_details_view.xml',
+        'views/OT_request_view.xml',
+        'data/mail_template.xml',
+    ],
+    'installable': True,
+    'auto_install': False,
+    'application': False,
+}
