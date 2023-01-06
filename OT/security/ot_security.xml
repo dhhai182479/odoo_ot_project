@@ -39,11 +39,10 @@
             <field name="domain_force">['&amp;', ('manager_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
             <field name="groups" eval="[(4, ref('group_ot_pm'))]"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
+            <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
-
 
         <record id="ot_registration_dl_rules" model="ir.rule">
             <field name="name">DL rules</field>
@@ -53,7 +52,7 @@
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
-            <field name="perm_unlink" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
     </data>
 </odoo>

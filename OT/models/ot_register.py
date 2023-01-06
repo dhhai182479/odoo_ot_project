@@ -15,7 +15,8 @@ class OtRegistration(models.Model):
                                   default=lambda self: self._get_default_employee())
     manager_id = fields.Many2one('hr.employee', string='Approve', required=True)
     ot_month = fields.Date(string='OT Month', readonly=True, default=date.today())
-    dl_manager_id = fields.Many2one('hr.employee', compute='_compute_dl_manager', string='Department lead', readonly=True, store=True)
+    dl_manager_id = fields.Many2one('hr.employee', compute='_compute_dl_manager',
+                                    string='Department lead', readonly=True, store=True)
     additional_hours = fields.Float('Total OT', compute='_compute_sum_ot_hours', store=True )
     state = fields.Selection([
         ('draft', 'Draft'), ('to_approve', 'To Approve'), ('approved', 'PM Approved'),
@@ -40,45 +41,71 @@ class OtRegistration(models.Model):
                     # r.additional_hours = sum(r.ot_lines.mapped('additional_hours'))
 
     @api.multi
-    def send_mail_to_emp(self):
-        template = self.env.ref('OT.email_template_ot_registration_to_emp')
+    def send_mail_pm_to_emp(self):
+        template = self.env.ref('OT.email_template_ot_pm_to_emp')
         for r in self:
             self.env['mail.template'].browse(template.id).send_mail(r.id)
 
+    # @api.multi
+    # def send_mail_dl_to_emp(self):
+    #     template = self.env.ref('OT.email_template_ot_registration_dl_to_emp')
+    #     for r in self:
+    #         self.env['mail.template'].browse(template.id).send_mail(r.id)
+
     def action_draft(self):
         for r in self:
-            r.state = 'draft'
+            if r.env.user.has_group('OT.group_ot_employee') and r.state == 'refused':
+                r.state = 'draft'
+            else:
+                raise ValidationError(_('you do not have permission to make the request'))
 
     def action_submit(self):
         for r in self:
-            r.state = 'to_approve'
-            self.send_mail_to_emp()
+            if r.env.user.has_group('OT.group_ot_employee') and r.state == 'draft':
+                r.state = 'to_approve'
+            else:
+                raise ValidationError(_('you do not have permission to make the request'))
 
     def action_button_pm_dl_approve(self):
         for r in self:
-            if r.state == 'to_approve':
+            if r.env.user.has_group('OT.group_ot_pm') and r.state == 'to_approve':
                 r.state = 'approved'
-            else:
+                self.send_mail_pm_to_emp()
+            elif r.env.user.has_group('OT.group_ot_dl') and r.state == 'approved':
                 r.state = 'done'
-            self.send_mail_to_emp()
+                # self.send_mail_dl_to_emp()
+            else:
+                raise ValidationError(_('you do not have permission to make the request'))
 
     def action_refused(self):
         for r in self:
-            r.state = 'refused'
+            if (r.env.user.has_group('OT.group_ot_pm') or r.env.user.has_group('OT.group_ot_dl')) \
+                    and (r.state == 'to_approve' or r.state == 'approved'):
+                r.state = 'refused'
+            else:
+                raise ValidationError(_('you do not have permission to make the request'))
 
-    @api.constrains('ot_lines_ids')
+    @api.constrains('ot_lines_ids', 'additional_hours')
     def _constrains_ot_lines(self):
         for r in self:
-            if not r.ot_lines_ids:
-                raise UserError(_('Line cannot null'))
+            if not r.ot_lines_ids or r.additional_hours <= 0:
+                raise UserError(_('ERROR'))
+
+    def unlink(self):
+        for r in self:
+            if r.state != 'draft':
+                raise ValidationError("You can't delete this record because it's not in draft state.")
+        return super(OtRegistration, self).unlink()
 
 
 class OtRegistrationLines(models.Model):
     _name = 'ot.registration.lines'
 
-    ot_registration_id = fields.Many2one('ot.registration', string='OT Registration')
-    project_id = fields.Many2one('project.project', string='Project', related='ot_registration_id.project_id', store=True, related_sudo=True)
-    employee_id = fields.Many2one('hr.employee', string='Employee', readonly=1, related='ot_registration_id.employee_id', store=True, related_sudo=True)
+    ot_registration_id = fields.Many2one('ot.registration', string='OT Registration', ondelete='cascade')
+    project_id = fields.Many2one('project.project', string='Project', related='ot_registration_id.project_id',
+                                 store=True, related_sudo=True)
+    employee_id = fields.Many2one('hr.employee', string='Employee', readonly=1, related='ot_registration_id.employee_id',
+                                  store=True, related_sudo=True)
 
     date_from = fields.Datetime(string='From', required=True, default=lambda self: fields.Datetime.now())
     date_to = fields.Datetime(string='To', required=True, default=fields.Datetime.now)
@@ -88,7 +115,8 @@ class OtRegistrationLines(models.Model):
         ('sunday', 'Chủ nhật'), ('weekend_day_night', 'Ngày cuối tuần - Ban đêm'),
         ('holiday', 'Ngày lễ'), ('holiday_day_night', 'Ngày lễ - Ban đêm'),
         ('compensatory_normal', 'Bù ngày lễ vào ngày thường'),('compensatory_night', 'Bù ngày lễ vào ban đêm'),
-        ('unknown', 'Không thể xác định')], string='OT Category', readonly=True, compute='_compute_check_category', store=True)
+        ('unknown', 'Không thể xác định')], string='OT Category', readonly=True,
+        compute='_compute_check_category', store=True)
     is_wfh = fields.Boolean(string='WFH')
     is_intern_contract = fields.Boolean(string='Is intern', readonly=True)
     additional_hours = fields.Float('OT hours', readonly=True, compute='_compute_count_ot_hours', store=True)

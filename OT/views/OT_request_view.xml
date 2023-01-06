@@ -6,9 +6,9 @@
             <field name="model">ot.registration</field>
             <field name="arch" type="xml">
                 <tree string="OT Registration">
-                    <field name="project_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="project_id"/>
                     <field name="employee_id"/>
-                    <field name="manager_id" string="Manager Approve" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="manager_id" string="Manager Approve"/>
                     <field name="additional_hours" string="OT hours"/>
                     <field name="state"/>
                 </tree>
