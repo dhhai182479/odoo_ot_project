@@ -41,16 +41,34 @@ class OtRegistration(models.Model):
                     # r.additional_hours = sum(r.ot_lines.mapped('additional_hours'))
 
     @api.multi
-    def send_mail_pm_to_emp(self):
+    def send_mail_emp_to_pm(self):
+        template = self.env.ref('OT.email_template_ot_emp_to_pm')
+        for r in self:
+            self.env['mail.template'].browse(template.id).send_mail(r.id)
+
+    @api.multi
+    def send_mail_pm_approve(self):
         template = self.env.ref('OT.email_template_ot_pm_to_emp')
         for r in self:
             self.env['mail.template'].browse(template.id).send_mail(r.id)
 
-    # @api.multi
-    # def send_mail_dl_to_emp(self):
-    #     template = self.env.ref('OT.email_template_ot_registration_dl_to_emp')
-    #     for r in self:
-    #         self.env['mail.template'].browse(template.id).send_mail(r.id)
+    @api.multi
+    def send_mail_pm_refused(self):
+        template = self.env.ref('OT.email_template_ot_pm_refused')
+        for r in self:
+            self.env['mail.template'].browse(template.id).send_mail(r.id)
+
+    @api.multi
+    def send_mail_dl_approve(self):
+        template = self.env.ref('OT.email_template_ot_dl_to_emp')
+        for r in self:
+            self.env['mail.template'].browse(template.id).send_mail(r.id)
+
+    @api.multi
+    def send_mail_dl_refused(self):
+        template = self.env.ref('OT.email_template_ot_dl_refused')
+        for r in self:
+            self.env['mail.template'].browse(template.id).send_mail(r.id)
 
     def action_draft(self):
         for r in self:
@@ -63,6 +81,7 @@ class OtRegistration(models.Model):
         for r in self:
             if r.env.user.has_group('OT.group_ot_employee') and r.state == 'draft':
                 r.state = 'to_approve'
+                self.send_mail_emp_to_pm()
             else:
                 raise ValidationError(_('you do not have permission to make the request'))
 
@@ -70,18 +89,21 @@ class OtRegistration(models.Model):
         for r in self:
             if r.env.user.has_group('OT.group_ot_pm') and r.state == 'to_approve':
                 r.state = 'approved'
-                self.send_mail_pm_to_emp()
+                self.send_mail_pm_approve()
             elif r.env.user.has_group('OT.group_ot_dl') and r.state == 'approved':
                 r.state = 'done'
-                # self.send_mail_dl_to_emp()
+                self.send_mail_dl_approve()
             else:
                 raise ValidationError(_('you do not have permission to make the request'))
 
     def action_refused(self):
         for r in self:
-            if (r.env.user.has_group('OT.group_ot_pm') or r.env.user.has_group('OT.group_ot_dl')) \
-                    and (r.state == 'to_approve' or r.state == 'approved'):
+            if r.env.user.has_group('OT.group_ot_pm') and r.state == 'to_approve':
                 r.state = 'refused'
+                self.send_mail_pm_refused()
+            elif r.env.user.has_group('OT.group_ot_dl') and r.state == 'approved':
+                r.state = 'refused'
+                self.send_mail_dl_refused()
             else:
                 raise ValidationError(_('you do not have permission to make the request'))
 

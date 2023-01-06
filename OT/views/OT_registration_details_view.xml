@@ -21,10 +21,31 @@
             </field>
         </record>
 
+        <record id="ot_registration_line_search" model="ir.ui.view">
+            <field name="name">ot.registration.lines.search</field>
+            <field name="model">ot.registration.lines</field>
+            <field name="arch" type="xml">
+                <search string="Search OT Registration">
+                    <filter name="to_pm_approve" domain="[('state', '=', 'to_approve')]" string="State: To PM Approve"/>
+                    <filter name="to_dl_approve" domain="[('state', '=', 'approved')]" string="State: To DL Approve"/>
+                    <separator/>
+                    <filter name="dl_approve" domain="[('state', '=', 'done')]" string="State: DL Approve"/>
+                    <separator/>
+                    <filter name="late_approved" domain="[('state', '=', 'refused')]" string="Late Approved"/>
+                    <group expand="1" string="Group By">
+                        <filter name="group_by_month" string="Month" context="{'group_by': 'date_from:month'}"/>
+                        <filter name="group_by_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                        <filter name="group_by_status" string="Status" context="{'group_by': 'notes'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
         <record id="action_ot_registration_lines" model="ir.actions.act_window">
             <field name="name">OT Registration Lines</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">ot.registration.lines</field>
+            <field name="context">{'search_default_group_by_month': 1, 'search_default_group_by_status': 1}</field>
         </record>
 
         <menuitem id="menu_ot_management"

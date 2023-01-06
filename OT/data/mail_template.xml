@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data>
+    <data noupdate="1">
+        <record id="email_template_ot_emp_to_pm" model="mail.template">
+            <field name="name">Mail OT Registration Emp</field>
+            <field name="model_id" ref="OT.model_ot_registration"/>
+            <field name="email_from">${(object.employee_id.work_email or '')|safe}</field>
+            <field name="email_to">${(object.manager_id.work_email or '')|safe}</field>
+            <field name="body_html" type="html">
+                <div>
+                    <h1>Hi ${(object.manager_id.name or '')}</h1>
+                    <p>I registered for OT and sent a request to you</p>
+                    <p>I look forward to hearing from you soon</p>
+                    <p>Regards,</p>
+                    <p>OT Management</p>
+                </div>
+            </field>
+        </record>
+
         <record id="email_template_ot_pm_to_emp" model="mail.template">
             <field name="name">Mail OT Registration PM</field>
             <field name="model_id" ref="OT.model_ot_registration"/>
-            <field name="email_from">${(object.project_id.work_email or '')}</field>
+            <field name="email_from">${(object.manager_id.work_email or '')}</field>
             <field name="email_to">${(object.employee_id.work_email or '')|safe}</field>
             <field name="body_html" type="html">
                 <div>
@@ -18,26 +34,62 @@
                 </div>
             </field>
         </record>
-    </data>
 
-<!--    <data>-->
-<!--        <record id="email_template_ot_dl_to_emp" model="mail.template">-->
-<!--            <field name="name">Mail OT Registration DL</field>-->
-<!--            <field name="model_id" re="OT.model_ot_registration"/>-->
-<!--            <field name="email_from">${(object.manager_id.work_email or '')}</field>-->
-<!--            <field name="email_to">${(object.employee_id.work_email or '')|safe}</field>-->
-<!--            <field name="body_html" type="html">-->
-<!--                <div>-->
-<!--                    <h1>Hi ${object.employee_id.name or ''}</h1>-->
-<!--                    <p>You have successfully registered for OT.</p>-->
-<!--                    <p>OT Project: ${object.project_id.name or ''}</p>-->
-<!--                    <p>OT Project Manager: ${object.manager_id.name or ''}</p>-->
-<!--                    <p>OT DL: ${object.dl_manager_id.name or ''} </p>-->
-<!--                    <p>OT Status: ${object.state or ''}</p>-->
-<!--                    <p>Regards,</p>-->
-<!--                    <p>OT Management</p>-->
-<!--                </div>-->
-<!--            </field>-->
-<!--        </record>-->
-<!--    </data>-->
+        <record id="email_template_ot_pm_refused" model="mail.template">
+            <field name="name">Mail OT Registration PM Refused</field>
+            <field name="model_id" ref="OT.model_ot_registration"/>
+            <field name="email_from">${(object.manager_id.work_email or '')}</field>
+            <field name="email_to">${(object.employee_id.work_email or '')}</field>
+            <field name="body_html" type="html">
+                <div>
+                    <h1>Hi ${object.employee_id.name or ''}</h1>
+                    <p>I have received your request</p>
+                     <p>Sorry, your request is not valid</p>
+                    <p>OT Project: ${object.project_id.name or ''}</p>
+                    <p>OT Project Manager: ${object.manager_id.name or ''}</p>
+                    <p>Regards,</p>
+                    <p>OT Management</p>
+                </div>
+            </field>
+        </record>
+
+        <record id="email_template_ot_dl_to_emp" model="mail.template">
+            <field name="name">Mail OT Registration DL</field>
+            <field name="model_id" ref="OT.model_ot_registration"/>
+            <field name="email_from">${(object.dl_manager_id.work_email or '')}</field>
+            <field name="email_to">${(object.employee_id.work_email or '')|safe}</field>
+            <field name="body_html" type="html">
+                <div>
+                    <h1>Hi ${object.employee_id.name or ''}</h1>
+                    <p>You have successfully registered for OT.</p>
+                    <p>OT Project: ${object.project_id.name or ''}</p>
+                    <p>OT Project Manager: ${object.manager_id.name or ''}</p>
+                    <p>OT DL: ${object.dl_manager_id.name or ''}</p>
+                    <p>OT Status: ${object.state or ''}</p>
+                    <p>Regards,</p>
+                    <p>OT Management</p>
+                </div>
+            </field>
+        </record>
+
+        <record id="email_template_ot_dl_refused" model="mail.template">
+            <field name="name">Mail OT Registration DL Refused</field>
+            <field name="model_id" ref="OT.model_ot_registration"/>
+            <field name="email_from">${(object.dl_manager_id.work_email or '')}</field>
+            <field name="email_to">${(object.employee_id.work_email or '')|safe}</field>
+            <field name="body_html" type="html">
+                <div>
+                    <h1>Hi ${object.employee_id.name or ''}</h1>
+                    <p>I have received your request</p>
+                    <p>Sorry, your request is not valid</p>
+                    <p>OT Project: ${object.project_id.name or ''}</p>
+                    <p>OT Project Manager: ${object.manager_id.name or ''}</p>
+                    <p>OT DL: ${object.dl_manager_id.name or ''}</p>
+                    <p>OT Status: ${object.state or ''}</p>
+                    <p>Regards,</p>
+                    <p>OT Management</p>
+                </div>
+            </field>
+        </record>
+    </data>
 </odoo>
