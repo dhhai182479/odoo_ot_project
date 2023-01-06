@@ -46,11 +46,11 @@ class OtRegistration(models.Model):
         for r in self:
             self.env['mail.template'].browse(template.id).send_mail(r.id)
 
-    # @api.multi
-    # def send_mail_dl_to_emp(self):
-    #     template = self.env.ref('OT.email_template_ot_registration_dl_to_emp')
-    #     for r in self:
-    #         self.env['mail.template'].browse(template.id).send_mail(r.id)
+    @api.multi
+    def send_mail_dl_to_emp(self):
+        template = self.env.ref('OT.email_template_ot_dl_to_emp')
+        for r in self:
+            self.env['mail.template'].browse(template.id).send_mail(r.id)
 
     def action_draft(self):
         for r in self:
@@ -73,7 +73,7 @@ class OtRegistration(models.Model):
                 self.send_mail_pm_to_emp()
             elif r.env.user.has_group('OT.group_ot_dl') and r.state == 'approved':
                 r.state = 'done'
-                # self.send_mail_dl_to_emp()
+                self.send_mail_dl_to_emp()
             else:
                 raise ValidationError(_('you do not have permission to make the request'))
 
