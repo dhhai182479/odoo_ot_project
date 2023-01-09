@@ -36,9 +36,11 @@ class OtRegistration(models.Model):
     def _compute_sum_ot_hours(self):
         for r in self:
             if r.ot_lines_ids:
+                additional_hours = 0
                 for record in r.ot_lines_ids:
-                    r.additional_hours += record.additional_hours
+                    additional_hours += record.additional_hours
                     # r.additional_hours = sum(r.ot_lines.mapped('additional_hours'))
+                r.additional_hours = additional_hours
 
     @api.multi
     def send_mail_emp_to_pm(self):
