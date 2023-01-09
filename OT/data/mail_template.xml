@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data noupdate="1">
+    <data noupdate="0">
         <record id="email_template_ot_emp_to_pm" model="mail.template">
-            <field name="name">Mail OT Registration Emp</field>
+            <field name="name">OT: Emp submit </field>
             <field name="model_id" ref="OT.model_ot_registration"/>
             <field name="email_from">${(object.employee_id.work_email or '')|safe}</field>
             <field name="email_to">${(object.manager_id.work_email or '')|safe}</field>
@@ -13,12 +13,13 @@
                     <p>I look forward to hearing from you soon</p>
                     <p>Regards,</p>
                     <p>OT Management</p>
+                    <a href="/web#id=${object.id}&amp;action=155&amp;model=ot.registration&amp;view_type=form&amp;menu_id=">Click here</a>
                 </div>
             </field>
         </record>
 
         <record id="email_template_ot_pm_to_emp" model="mail.template">
-            <field name="name">Mail OT Registration PM</field>
+            <field name="name">OT: PM approved</field>
             <field name="model_id" ref="OT.model_ot_registration"/>
             <field name="email_from">${(object.manager_id.work_email or '')}</field>
             <field name="email_to">${(object.employee_id.work_email or '')|safe}</field>
@@ -36,7 +37,7 @@
         </record>
 
         <record id="email_template_ot_pm_refused" model="mail.template">
-            <field name="name">Mail OT Registration PM Refused</field>
+            <field name="name">OT: PM refused</field>
             <field name="model_id" ref="OT.model_ot_registration"/>
             <field name="email_from">${(object.manager_id.work_email or '')}</field>
             <field name="email_to">${(object.employee_id.work_email or '')}</field>
@@ -54,7 +55,7 @@
         </record>
 
         <record id="email_template_ot_dl_to_emp" model="mail.template">
-            <field name="name">Mail OT Registration DL</field>
+            <field name="name">OT: DL approved</field>
             <field name="model_id" ref="OT.model_ot_registration"/>
             <field name="email_from">${(object.dl_manager_id.work_email or '')}</field>
             <field name="email_to">${(object.employee_id.work_email or '')|safe}</field>
@@ -73,7 +74,7 @@
         </record>
 
         <record id="email_template_ot_dl_refused" model="mail.template">
-            <field name="name">Mail OT Registration DL Refused</field>
+            <field name="name">OT: DL refused</field>
             <field name="model_id" ref="OT.model_ot_registration"/>
             <field name="email_from">${(object.dl_manager_id.work_email or '')}</field>
             <field name="email_to">${(object.employee_id.work_email or '')|safe}</field>

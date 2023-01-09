@@ -78,6 +78,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">ot.registration</field>
             <field name="view_mode">tree,form</field>
+            <field name="help" type="html"><p></p></field>
         </record>
 
         <menuitem id="menu_ot_registration_request"

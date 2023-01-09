@@ -2,7 +2,7 @@ from odoo import fields, models, api, _
 from datetime import datetime, date, time, timedelta
 import pytz
 from odoo.exceptions import UserError, AccessError, ValidationError
-
+import holidays
 
 class OtRegistration(models.Model):
     _name = 'ot.registration'
@@ -17,7 +17,7 @@ class OtRegistration(models.Model):
     ot_month = fields.Date(string='OT Month', readonly=True, default=date.today())
     dl_manager_id = fields.Many2one('hr.employee', compute='_compute_dl_manager',
                                     string='Department lead', readonly=True, store=True)
-    additional_hours = fields.Float('Total OT', compute='_compute_sum_ot_hours', store=True )
+    additional_hours = fields.Float('Total OT', compute='_compute_sum_ot_hours', store=True)
     state = fields.Selection([
         ('draft', 'Draft'), ('to_approve', 'To Approve'), ('approved', 'PM Approved'),
         ('done', 'DL Approved'), ('refused', 'Refused')
@@ -114,6 +114,8 @@ class OtRegistration(models.Model):
         for r in self:
             if not r.ot_lines_ids or r.additional_hours <= 0:
                 raise UserError(_('ERROR'))
+            if r.ot_lines_ids.category == 'unknown':
+                raise UserError(_('Category is not unknown'))
 
     def unlink(self):
         for r in self:
@@ -157,10 +159,10 @@ class OtRegistrationLines(models.Model):
     @api.depends('date_from', 'date_to')
     def _compute_count_ot_hours(self):
         for r in self:
-            # r.additional_hours = datetime.timestamp(r.date_to) - datetime.timestamp(r.date_from)
-            # r.additional_hours = round(r.additional_hours/3600, 2)
-            r.additional_hours = (r.date_to - r.date_from).total_seconds()
-            r.additional_hours = round(r.additional_hours/3600, 2)
+            if r.date_from and r.date_to:
+                additional_hours = (r.date_to - r.date_from).total_seconds()
+                additional_hours = round(additional_hours/3600, 2)
+                r.additional_hours = additional_hours
 
     @api.depends('date_from', 'date_to')
     def _compute_check_category(self):
@@ -168,26 +170,27 @@ class OtRegistrationLines(models.Model):
         hour22pm = time().replace(hour=22, minute=0, second=0, microsecond=0)
         hour8h30am = time().replace(hour=8, minute=30, second=0, microsecond=0)
         hour18h30pm = time().replace(hour=18, minute=30, second=0, microsecond=0)
+        vi_holidays = holidays.VN()
         for r in self:
             if r.date_from and r.date_to:
-                time_from = r.tz_utc_to_local(r.date_from).time()
-                time_to = r.tz_utc_to_local(r.date_to).time()
-                day_from = r.date_from.isoweekday()
-                day_to = r.date_to.isoweekday()
-                if (hour6am <= time_from < hour22pm) and (time_to <= hour22pm):
-                    if (r.date_from.isoweekday() == r.date_to.isoweekday() == 6):
-                        r.category = 'saturday'
-                    elif (r.date_from.isoweekday() == r.date_to.isoweekday() == 7):
-                        r.category = 'sunday'
+                # time_from = r.tz_utc_to_local(r.date_from).time()
+                # time_to = r.tz_utc_to_local(r.date_to).time()
+                if (r.date_from == r.date_to) and (r.date_from in vi_holidays):
+                    r.category = 'holiday'
+                elif (r.date_from.isoweekday() or r.date_to.isoweekday()) in (1, 2, 3, 4, 5) and (r.date_from.isoweekday() == r.date_to.isoweekday()):
+                    r.category = 'normal_day'
+                elif r.date_from.isoweekday() == r.date_to.isoweekday() == 6:
+                    if r.date_from in vi_holidays:
+                        r.category = 'holiday'
                     else:
-                        r.category = 'unknown'
-                if (r.date_from.isoweekday() or r.date_to.isoweekday()) in (1, 2, 3, 4, 5) and (r.date_from.isoweekday() == r.date_to.isoweekday()):
-                    if (hour6am <= time_from < hour8h30am) and (time_to <= hour8h30am):
-                        r.category = 'normal_day_morning'
-                    elif (hour18h30pm < time_from < hour22pm) and (time_to <= hour22pm):
-                        r.category = 'normal_day'
-                    # else:
-                    #     r.category = 'unknown'
+                        r.category = 'saturday'
+                elif r.date_from.isoweekday() == r.date_to.isoweekday() == 7:
+                    if r.date_from in vi_holidays:
+                        r.category = 'holiday'
+                    else:
+                        r.category = 'sunday'
+                else:
+                    r.category = 'unknown'
 
     def tz_utc_to_local(self, utc_time):
         return utc_time + self.utc_offset()
