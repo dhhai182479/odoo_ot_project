@@ -4,6 +4,7 @@ import pytz
 from odoo.exceptions import UserError, AccessError, ValidationError
 import holidays
 
+
 class OtRegistration(models.Model):
     _name = 'ot.registration'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
@@ -130,7 +131,8 @@ class OtRegistrationLines(models.Model):
     ot_registration_id = fields.Many2one('ot.registration', string='OT Registration', ondelete='cascade')
     project_id = fields.Many2one('project.project', string='Project', related='ot_registration_id.project_id',
                                  store=True, related_sudo=True)
-    employee_id = fields.Many2one('hr.employee', string='Employee', readonly=1, related='ot_registration_id.employee_id',
+    employee_id = fields.Many2one('hr.employee', string='Employee', readonly=1,
+                                  related='ot_registration_id.employee_id',
                                   store=True, related_sudo=True)
 
     date_from = fields.Datetime(string='From', required=True, default=lambda self: fields.Datetime.now())
@@ -140,7 +142,7 @@ class OtRegistrationLines(models.Model):
         ('normal_day_night', 'Ngày bình thường - Ban đêm'), ('saturday', 'Thứ 7'),
         ('sunday', 'Chủ nhật'), ('weekend_day_night', 'Ngày cuối tuần - Ban đêm'),
         ('holiday', 'Ngày lễ'), ('holiday_day_night', 'Ngày lễ - Ban đêm'),
-        ('compensatory_normal', 'Bù ngày lễ vào ngày thường'),('compensatory_night', 'Bù ngày lễ vào ban đêm'),
+        ('compensatory_normal', 'Bù ngày lễ vào ngày thường'), ('compensatory_night', 'Bù ngày lễ vào ban đêm'),
         ('unknown', 'Không thể xác định')], string='OT Category', readonly=True,
         compute='_compute_check_category', store=True)
     is_wfh = fields.Boolean(string='WFH')
@@ -161,7 +163,7 @@ class OtRegistrationLines(models.Model):
         for r in self:
             if r.date_from and r.date_to:
                 additional_hours = (r.date_to - r.date_from).total_seconds()
-                additional_hours = round(additional_hours/3600, 2)
+                additional_hours = round(additional_hours / 3600, 2)
                 r.additional_hours = additional_hours
 
     @api.depends('date_from', 'date_to')
@@ -177,7 +179,8 @@ class OtRegistrationLines(models.Model):
                 # time_to = r.tz_utc_to_local(r.date_to).time()
                 if (r.date_from == r.date_to) and (r.date_from in vi_holidays):
                     r.category = 'holiday'
-                elif (r.date_from.isoweekday() or r.date_to.isoweekday()) in (1, 2, 3, 4, 5) and (r.date_from.isoweekday() == r.date_to.isoweekday()):
+                elif (r.date_from.isoweekday() or r.date_to.isoweekday()) in (1, 2, 3, 4, 5) and (
+                        r.date_from.isoweekday() == r.date_to.isoweekday()):
                     r.category = 'normal_day'
                 elif r.date_from.isoweekday() == r.date_to.isoweekday() == 6:
                     if r.date_from in vi_holidays:
