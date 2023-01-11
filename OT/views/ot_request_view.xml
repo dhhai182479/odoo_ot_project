@@ -29,8 +29,9 @@
                         <button name="action_button_pm_dl_approve" type="object" string="DL Approve" states="approved"
                                 groups="OT.group_ot_dl" confirm="Do you want to confirm?" class="oe_highlight"
                                 icon="fa-reply text-warning"/>
-                        <button name="action_draft" string="Draft" type="object" states="refused"
-                                groups="OT.group_ot_employee" confirm="Do you want to draft?" class="oe_highlight"
+                        <button name="action_draft" string="Draft" type="object"
+                                attrs="{'invisible': ['|',('is_own', '=', False), ('state', '!=', 'refused')]}"
+                                confirm="Do you want to draft?" class="oe_highlight"
                                 icon="fa-reply text-warning"/>
                         <button name="action_refused" string="Refused" type="object" states="to_approve"
                                 groups="OT.group_ot_pm" confirm="Do you want to refused?" class="oe_highlight"
@@ -48,6 +49,8 @@
                             <field name="manager_id" options="{'no_create': True, 'no_open': True}"
                                    attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="ot_month" options="{'datepicker': {'showType': 'months'}}" widget="date"/>
+                            <field name="user_group"/>
+                            <field name="is_own"/>
                         </group>
                         <group>
                             <field name="employee_id"/>

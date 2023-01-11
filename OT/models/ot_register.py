@@ -24,6 +24,9 @@ class OtRegistration(models.Model):
         ('done', 'DL Approved'), ('refused', 'Refused')
     ], string='State', default='draft', readonly=True, track_visibility='onchange')
 
+    user_group = fields.Char('groups', compute='check_group_hide_btn')
+    is_own = fields.Boolean(compute='check_is_own')
+
     def _get_default_employee(self):
         return self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
 
@@ -46,6 +49,12 @@ class OtRegistration(models.Model):
     @api.multi
     def send_mail_emp_to_pm(self):
         template = self.env.ref('OT.email_template_ot_emp_to_pm')
+        for r in self:
+            self.env['mail.template'].browse(template.id).send_mail(r.id)
+
+    @api.multi
+    def send_mail_emp_to_dl(self):
+        template = self.env.ref('OT.email_template_ot_emp_to_dl')
         for r in self:
             self.env['mail.template'].browse(template.id).send_mail(r.id)
 
@@ -73,18 +82,36 @@ class OtRegistration(models.Model):
         for r in self:
             self.env['mail.template'].browse(template.id).send_mail(r.id)
 
+    def check_is_own(self):
+        for r in self:
+            r.is_own = r.create_uid.id == self._uid
+
+    def check_group_hide_btn(self):
+        for r in self:
+            if r.env.user.has_group('OT.group_ot_employee'):
+                r.user_group = 'em'
+            if r.env.user.has_group('OT.group_ot_pm'):
+                r.user_group = 'pm'
+            if r.env.user.has_group('OT.group_ot_dl'):
+                r.user_group = 'dl'
+
     def action_draft(self):
         for r in self:
-            if r.env.user.has_group('OT.group_ot_employee') and r.state == 'refused':
+            if r.state == 'refused':
                 r.state = 'draft'
             else:
                 raise ValidationError(_('you do not have permission to make the request'))
 
     def action_submit(self):
         for r in self:
-            if r.env.user.has_group('OT.group_ot_employee') and r.state == 'draft':
+            if (r.env.user.has_group('OT.group_ot_employee')) and r.state == 'draft':
                 r.state = 'to_approve'
                 self.send_mail_emp_to_pm()
+            elif r.env.user.has_group('OT.group_ot_pm') and r.state == 'draft':
+                r.state = 'approved'
+                self.send_mail_emp_to_dl()
+            elif r.env.user.has_group('OT.group_ot_dl') and r.state == 'draft':
+                r.state = 'done'
             else:
                 raise ValidationError(_('you do not have permission to make the request'))
 
@@ -118,11 +145,11 @@ class OtRegistration(models.Model):
             if r.ot_lines_ids.category == 'unknown':
                 raise UserError(_('Category is not unknown'))
 
-    def unlink(self):
-        for r in self:
-            if r.state != 'draft':
-                raise ValidationError("You can't delete this record because it's not in draft state.")
-        return super(OtRegistration, self).unlink()
+    # def unlink(self):
+    #     for r in self:
+    #         if r.state != 'draft':
+    #             raise ValidationError("You can't delete this record because it's not in draft state.")
+    #     return super(OtRegistration, self).unlink()
 
 
 class OtRegistrationLines(models.Model):
