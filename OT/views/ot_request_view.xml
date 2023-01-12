@@ -49,8 +49,8 @@
                             <field name="manager_id" options="{'no_create': True, 'no_open': True}"
                                    attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="ot_month" options="{'datepicker': {'showType': 'months'}}" widget="date"/>
-                            <field name="user_group"/>
-                            <field name="is_own"/>
+                            <field name="user_group" invisible="1"/>
+                            <field name="is_own" invisible="1"/>
                         </group>
                         <group>
                             <field name="employee_id"/>
