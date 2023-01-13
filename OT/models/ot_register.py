@@ -14,7 +14,8 @@ class OtRegistration(models.Model):
     project_id = fields.Many2one('project.project', string='Project', required=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True,
                                   default=lambda self: self._get_default_employee())
-    manager_id = fields.Many2one('hr.employee', string='Approve', required=True, compute='check_project_id', store=True)
+    manager_id = fields.Many2one('res.users', string='Approve', required=True, compute='_compute_check_project_id',
+                                 store=False)
     ot_month = fields.Date(string='OT Month', readonly=True, default=date.today())
     dl_manager_id = fields.Many2one('hr.employee', compute='_compute_dl_manager',
                                     string='Department lead', readonly=True, store=True)
@@ -47,9 +48,9 @@ class OtRegistration(models.Model):
                 r.additional_hours = additional_hours
 
     @api.depends('project_id')
-    def check_project_id(self):
+    def _compute_check_project_id(self):
         for r in self:
-            r.manager_id = r.project_id.project_manager_id.id
+            r.manager_id = r.project_id.user_id.id
 
     @api.multi
     def send_mail_emp_to_pm(self):
@@ -150,12 +151,15 @@ class OtRegistration(models.Model):
             if r.ot_lines_ids.category == 'unknown':
                 raise UserError(_('Category is not unknown'))
 
+    def unlink(self):
+        for r in self:
+            if r.state != 'draft':
+                raise ValidationError("You can't delete this record because it's not in draft state.")
+        return super(OtRegistration, self).unlink()
 
-    # def unlink(self):
-    #     for r in self:
-    #         if r.state != 'draft':
-    #             raise ValidationError("You can't delete this record because it's not in draft state.")
-    #     return super(OtRegistration, self).unlink()
+    def get_link_record(self):
+        for r in self:
+            return '/ot_management/%s' % r.id
 
 
 class OtRegistrationLines(models.Model):

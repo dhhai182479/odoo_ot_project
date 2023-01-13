@@ -13,15 +13,13 @@
                     <p>I look forward to hearing from you soon</p>
                     <p>Regards,</p>
                     <p>OT Management</p>
-                    <a href="/web#id=${object.id}&amp;action=155&amp;model=ot.registration&amp;view_type=form&amp;menu_id="
-                       style="font-size:20px">Click here to view
-                    </a>
+                    <a href="${object.get_link_record()}" style="font-size:20px">Click here to view</a>
                 </div>
             </field>
         </record>
 
         <record id="email_template_ot_emp_to_dl" model="mail.template">
-            <field name="name">OT: Emp submit to DL</field>
+            <field name="name">OT: Emp (PM) submit to DL</field>
             <field name="model_id" ref="OT.model_ot_registration"/>
             <field name="email_from">${(object.employee_id.work_email or '')|safe}</field>
             <field name="email_to">${(object.dl_manager_id.work_email or '')|safe}</field>
