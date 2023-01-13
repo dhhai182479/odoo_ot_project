@@ -42,8 +42,8 @@
             <field name="domain_force">[('manager_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
             <field name="groups" eval="[(4, ref('group_ot_pm'))]"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 
@@ -64,8 +64,8 @@
             <field name="domain_force">['&amp;', ('dl_manager_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
             <field name="groups" eval="[(4, ref('group_ot_dl'))]"/>
             <field name="perm_read" eval="True"/>
-            <field name="perm_write" eval="True"/>
-            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
             <field name="perm_unlink" eval="True"/>
         </record>
 

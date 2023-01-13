@@ -74,6 +74,9 @@
                     <p>OT Project Manager: ${object.manager_id.name or ''}</p>
                     <p>Regards,</p>
                     <p>OT Management</p>
+                    <a href="/web#id=${object.id}&amp;action=155&amp;model=ot.registration&amp;view_type=form&amp;menu_id="
+                       style="font-size:20px">Click here to view
+                    </a>
                 </div>
             </field>
         </record>
@@ -93,6 +96,9 @@
                     <p>OT Status: ${object.state or ''}</p>
                     <p>Regards,</p>
                     <p>OT Management</p>
+                    <a href="/web#id=${object.id}&amp;action=155&amp;model=ot.registration&amp;view_type=form&amp;menu_id="
+                       style="font-size:20px">Click here to view
+                    </a>
                 </div>
             </field>
         </record>
@@ -113,6 +119,9 @@
                     <p>OT Status: ${object.state or ''}</p>
                     <p>Regards,</p>
                     <p>OT Management</p>
+                    <a href="/web#id=${object.id}&amp;action=155&amp;model=ot.registration&amp;view_type=form&amp;menu_id="
+                       style="font-size:20px">Click here to view
+                    </a>
                 </div>
             </field>
         </record>

@@ -17,6 +17,7 @@
         'security/ir.model.access.csv',
         'views/ot_registration_details_view.xml',
         'views/ot_request_view.xml',
+        'views/project_manager_view.xml',
         'data/mail_template.xml',
     ],
     'installable': True,

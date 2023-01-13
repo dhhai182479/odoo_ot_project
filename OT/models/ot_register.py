@@ -14,7 +14,7 @@ class OtRegistration(models.Model):
     project_id = fields.Many2one('project.project', string='Project', required=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True,
                                   default=lambda self: self._get_default_employee())
-    manager_id = fields.Many2one('hr.employee', string='Approve', required=True)
+    manager_id = fields.Many2one('hr.employee', string='Approve', required=True, compute='check_project_id', store=True)
     ot_month = fields.Date(string='OT Month', readonly=True, default=date.today())
     dl_manager_id = fields.Many2one('hr.employee', compute='_compute_dl_manager',
                                     string='Department lead', readonly=True, store=True)
@@ -45,6 +45,11 @@ class OtRegistration(models.Model):
                     additional_hours += record.additional_hours
                     # r.additional_hours = sum(r.ot_lines.mapped('additional_hours'))
                 r.additional_hours = additional_hours
+
+    @api.depends('project_id')
+    def check_project_id(self):
+        for r in self:
+            r.manager_id = r.project_id.project_manager_id.id
 
     @api.multi
     def send_mail_emp_to_pm(self):
@@ -144,6 +149,7 @@ class OtRegistration(models.Model):
                 raise UserError(_('ERROR'))
             if r.ot_lines_ids.category == 'unknown':
                 raise UserError(_('Category is not unknown'))
+
 
     # def unlink(self):
     #     for r in self:
